@@ -1,10 +1,10 @@
 pipeline {
-  agent any
-  stages {
-    stage('Hello') {
-      steps {
-        sh 'ansible-playbook -i hosts playbook.yml'
-      }
+    agent any
+    stages {
+        stage('Started ansible playbook') {
+            steps {            
+                ansiblePlaybook credentialsId: 'github-ssh-key', disableHostKeyChecking: true, installation: 'Ansible', inventory: '/etc/ansible/hosts', playbook: '/etc/ansible/docker-install.yml', vaultTmpPath: ''
+            }
+        }
     }
-  }
 }
