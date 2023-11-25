@@ -1,0 +1,75 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+    - name: Update apt package index
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required system packages
+      apt:
+        name: "{{item}}"
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+      loop:
+        - ca-certificates
+        - curl
+        - gnupg
+        - apt-transport-https
+
+    - name: Create keyrings directory
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Add Docker GPG apt Key
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt:
+        name: "{{item}}"
+        state: latest
+        update_cache: yes
+        cache_valid_time: 3600
+      loop:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+
+    - name: Check docker is active
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Create docker group
+      group:
+        name: docker
+        state: present
+
+    - name: Add user to docker group
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
+
+    - name: Change permissions for docker-compose file
+      file:
+        path: /home/vagrant/project/docker-compose.yml
+        mode: '0755'
+
+    - name: Starting docker compose
+      command: docker-compose -f /home/vagrant/project/docker-compose.yml up -d
