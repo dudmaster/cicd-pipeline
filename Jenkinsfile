@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Started ansible playbook') {
             steps {            
-                ansiblePlaybook credentialsId: 'dudmaster', disableHostKeyChecking: true, installation: 'Ansible', inventory: '/etc/ansible/hosts', playbook: '/etc/ansible/docker-install.yml', vaultTmpPath: ''
+                ansiblePlaybook credentialsId: 'github-ssh-key', disableHostKeyChecking: true, installation: 'Ansible', inventory: '/etc/ansible/hosts', playbook: '/etc/ansible/docker-install.yml', vaultTmpPath: ''
             }
         }
     }
